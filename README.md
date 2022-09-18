@@ -43,30 +43,31 @@ l 辅助注释
 1.首先把github上的clara-train-examples下载下来
 
  
-
+```
 git clone https://github.com/NVIDIA/clara-train-examples.git
-
+```
  
 
 进入目录
 
  
-
+```
 Cd clara-train-examples/NoteBooks/scripts 
-
+```
  
 
 （注意，这里如果要运行horovod并有共享数据的话，需要更改.sh的内容）
 
  
-
+```
 Vi installDocker.sh
+```
 
 内容如下（黄色高亮的是需要注意改动的地方）
 
  
 
- 
+ ```
 
 \#!/bin/bash
 
@@ -163,10 +164,11 @@ echo once completed use web browser with token given yourip:${jnotebookPort} to 
  
 
 docker run -itd --net=host -v /data1:/data1 -v /home/devops1/clara-training-examples:/home/devops1/clara-training-examples \
-
+```
 \#这里是共享的文件夹，和之前nfs的文件夹名称一样。如/data1   #/home/devops1/clara-training-examples 是当前clara-train-examples的文件夹，
 
 \#如果需要使用这个文件夹中的内容，也需要加上这个文件
+```
 
  --rm ${extraFlag} \
 
@@ -191,7 +193,7 @@ docker run -itd --net=host -v /data1:/data1 -v /home/devops1/clara-training-exam
  
 
 echo -- exited from docker image
-
+```
  
 
  
@@ -199,9 +201,9 @@ echo -- exited from docker image
 运行shell安装docker的预设要求
 
  
-
+```
 sudo installDocker.sh
-
+```
  
 
 ## 2. 运行docker
@@ -328,96 +330,113 @@ sudo installDocker.sh
 **1.NFS**
 
 **在****A****上的操作**
+# 在A上的操作
 
-\4. # 在A上的操作
+#1. 安装nfs服务器
+```
 
-\5. #1. 安装nfs服务器
+ sudo apt install nfs-kernel-server
+```
 
-\6. sudo apt install nfs-kernel-server
 
-\7.  
+ #2. 编写配置文件
+```
 
-\8. #2. 编写配置文件
+sudo vi /etc/exports
+```
 
-\9. sudo vi /etc/exports
+ #/etc/exports文件的内容如下
+ ```
 
-\10. #/etc/exports文件的内容如下
+/data1/share *(rw,sync,no_subtree_check,no_root_squash)
+```
 
-\11. /data1/share *(rw,sync,no_subtree_check,no_root_squash)
 
-\12.  
+ #3. 创建共享目录
+ 
+```
+sudo mkdir -p /data1/share
+```
 
-\13. #3. 创建共享目录
 
-\14. sudo mkdir -p /data1/share
 
-\15.  
+ #4. 重启nfs服务
 
-\16. #4. 重启nfs服务
+``` 
+sudo service nfs-kernel-server restart
+```
 
-\17. sudo service nfs-kernel-server restart
+ 
 
-\18.  
+ #5. 常用命令工具：
 
-\19. #5. 常用命令工具：
+ #在安装NFS服务器时，已包含常用的命令行工具，无需额外安装。
 
-\20. #在安装NFS服务器时，已包含常用的命令行工具，无需额外安装。
+  
 
-\21.  
+ #显示已经mount到本机nfs目录的客户端机器。
 
-\22. #显示已经mount到本机nfs目录的客户端机器。
+```
+sudo showmount -e localhost
+```
 
-\23. sudo showmount -e localhost
+  #将配置文件中的目录全部重新export一次！无需重启服务。
 
-\24.  
+```
+sudo exportfs -rv
+```
 
-\25. #将配置文件中的目录全部重新export一次！无需重启服务。
 
-\26. sudo exportfs -rv
 
-\27.  
+ #查看NFS的运行状态
 
-\28. #查看NFS的运行状态
+```
+sudo nfsstat
+```
 
-\29. sudo nfsstat
 
-\30.  
 
-\31. #查看rpc执行信息，可以用于检测rpc运行情况
+#查看rpc执行信息，可以用于检测rpc运行情况
 
-\32. sudo rpcinfo
+```
+sudo rpcinfo
+```
 
-\33.  
+ 
 
-\34. #查看网络端口，NFS默认是使用111端口。
+ #查看网络端口，NFS默认是使用111端口。
 
-\35. sudo netstat -tu -4
+``` 
+sudo netstat -tu -4
+```
 
 **在****B****上的操作**
 
-\36. # 在B上的操作
+ # 在B上的操作
 
-\37. #1. 安装nfs客户端
+ #1. 安装nfs客户端
 
-\38. sudo apt install nfs-common
+```
+sudo apt install nfs-common
+```
 
-\39.  
+#2. 查看NFS服务器上的共享目录
 
-\40. #2. 查看NFS服务器上的共享目录
+``` 
+sudo showmount -e A的ip
+```
 
-\41. sudo showmount -e A的ip
+ 
+#3. 创建本地挂载目录
 
-\42.  
+```
+sudo mkdir -p /data1/share
+```
+#4. 挂载共享目录
 
-\43. #3. 创建本地挂载目录
-
-\44. sudo mkdir -p /data1/share
-
-\45.  
-
-\46. #4. 挂载共享目录
-
-\47. sudo mount -t nfs A的ip:/data1/share /data1/share
+```
+sudo mount -t nfs A的ip:/data1/share /data1/share
+```
 
  
 
@@ -434,9 +453,9 @@ sudo installDocker.sh
 我们在clara docker 上的终端运行
 
  
-
+```
 Horovodrun –check
-
+```
  
 
 来检查horovod的安装情况
@@ -452,10 +471,12 @@ NCCL前面如果有[X]才表明开启，没有[X]表明没安装,于是我们需
 现在应该是在clara docker内进行如下操作：
 
 查看cuda版本
+```
 
 nvcc –V
 
 cat /etc/issue
+```
 
 安装对应的nccl库的版本
 
@@ -464,12 +485,14 @@ cat /etc/issue
 如这个网https://developer.download.nvidia.cn/compute/cuda/repos/ubuntu1804/x86_64/
 
 找到对应版本后安装
+```
 
 apt install libnccl2=2.8.4-1+cuda11.0 libnccl-dev=2.8.4-1+cuda11.0
-
+```
  
 
 如果没安装完成先做如下步骤
+```
 
 wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-ubuntu1804.pin
 
@@ -484,25 +507,31 @@ add-apt-repository "deb http://developer.download.nvidia.com/compute/cuda/repos/
  
 
 apt-get install software-properties-common
+```
 
 如果没安装完成，需要改一下dns服务器
 
  
-
+```
 vi /etc/resolv.conf
+```
 
 进入之后
+```
 
 nameserver 223.5.5.5 
 
 nameserver 223.6.6.6
+```
 
 更新一下apt-get
+```
 
-apt-get update
+apt-get update.
+```
 
 现在安装
-
+```
 apt-get install software-properties-common
 
  
@@ -512,28 +541,34 @@ add-apt-repository "deb http://developer.download.nvidia.com/compute/cuda/repos/
  
 
 apt-get update
+```
 
 再来安装要安装的nccl库
+```
 
 apt install libnccl2=2.8.4-1+cuda11.0 libnccl-dev=2.8.4-1+cuda11.0
+```
 
 （之前如果有提示提到apt-get dist-upgrade，可以跑一下这个命令，应该不是必须的）
-
+```
 apt-get dist-upgrade
-
+```
  
 
 现在开始安装带有nccl的horovod
 
 如果我们原来有安装过horovod，需要先卸载
 
+```
 Pip uninstall horovod
+```
 
 然后现在安装带有nccl的horovod
 
- 
+```
 
 HOROVOD_GPU_OPERATIONS=NCCL HOROVOD_WITH_TENSORFLOW=1 HOROVOD_WITH_PYTORCH=1 pip install --no-cache-dir horovod
+```
 
 这个命令可以随机应变视需求而定，HOROVOD_GPU_OPERATIONS=NCCL 代表支持nccl运算HOROVOD_WITH_TENSORFLOW=1代表支持tensorflow框架，HOROVOD_WITH_PYTORCH=1代表支持pytorch框架，具体命令可以参考
 
@@ -551,38 +586,47 @@ https://github.com/horovod/horovod/blob/master/docs/install.rst
 
 \1. 先在B服务器上开启ssh
  \#1. 修改sshd配置
+ ```
  vim /etc/ssh/sshd_config
- 
+ ```
  \#2. 改动如下
+ ```
  Port 12345
  PermitRootLogin yes
  PubkeyAuthentication yes
  AuthorizedKeysFile .ssh/authorized_keys .ssh/authorized_keys2
- 
+ ```
  \#3. 保存配置，启动sshd
+ ```
  /usr/sbin/sshd
- 
+ ```
  \#4. 查看ssh是否启动
+ ```
  ps -ef | grep ssh
- 
+ ```
  \#5. 修改root的密码
+ ```
  passwd
-
+```
 \2.  
 
 \3. 在A服务器上创建秘钥并且免密登录到B
  \#1. 生成秘钥，一直回车即可，注意生成秘钥位置
+ ```
  ssh-keygen -t rsa
- 
+ ```
  \#2. 在B上创建.ssh文件夹
+ ```
  ssh -p 12345 B的ip mkdir -p .ssh
- 
+ ```
  \#3. 将公钥添加到B的authorized_keys里，注意A的秘钥路径是否正确
+ ```
  cat .ssh/id_rsa.pub | ssh -p 12345 B 'cat >> .ssh/authorized_keys'
- 
+ ```
  \#测试是否可以免密登录
+ ```
  ssh -p 12345 B的ip
-
+```
 **启动测试**
 
 至此horovod的启动环境就搭好了，剩下的配套地修改训练代码可以参考horovod的docs去改。
@@ -590,17 +634,24 @@ https://github.com/horovod/horovod/blob/master/docs/install.rst
 这里以horovod的github为例测试一下是否可以正常启动多机多卡训练。以下操作在服务器A上进行。
 
 \1. 将horovod的代码下载到共享文件，注意下tag跟docker对应的版本
- git clone -b v0.18.2 [https://github.com/horovod/horovod.git](https://link.zhihu.com/?target=https%3A//github.com/horovod/horovod.git)
+```
+ git clone -b v0.18.2 
+ ```
+ [https://github.com/horovod/horovod.git](https://link.zhihu.com/?target=https%3A//github.com/horovod/horovod.git)
 
 \2. 修改examples下的pytorch_imagenet_resnet50.py，将imagenet路径修改为自己的路径(应在/data1/share里)。
  如果使用pytorch_mnist.py可以不修改代码。
 
 \3. 安装TensorboardX和tqdm (服务器B也要安装)
- pip install tensorboardX
+```
+pip install tensorboardX
  pip install tqdm
+ ```
 
 \4. 运行启动两台机多卡命令，每个服务器各用4张卡（可根据实际情况更改），8表示一共的卡数
- horovodrun -np 8 -H localhost:4,B_ip:4 -p 12345 python pytorch_imagenet_resnet50.py
+```
+horovodrun -np 8 -H localhost:4,B_ip:4 -p 12345 python pytorch_imagenet_resnet50.py
+```
 
 分别查看A和B的显卡占用，是否多机多卡启动正常。
 
@@ -609,11 +660,11 @@ https://github.com/horovod/horovod/blob/master/docs/install.rst
 **Unet 3d****测试**
 
 接下来是关于测试unet 3d的流程，使用的代码来自github/monai
-
+```
 Git clone https://github.com/Project-MONAI/tutorials.git
-
+```
 安装需要的安装包
-
+```
 Pip install monai
 
 python -m pip install -U pip
@@ -623,11 +674,11 @@ python -m pip install -U matplotlib
 python -m pip install -U notebook
 
 pip install -r https://raw.githubusercontent.com/Project-MONAI/MONAI/master/requirements-dev.txt
-
+```
 直接在相关目录下跑horovod多机多卡训练
-
+```
 Horovodrun –np X –H localhost:A,worker2_ip:B, Worker3_ip:C  -p 12345 python /data1/share/tutorials/acceleration/distributed_training/unet_training_horovod.py
-
+```
  
 
 -H指的是host模式
