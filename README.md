@@ -69,11 +69,10 @@ Vi installDocker.sh
 
  ```
 
-\#!/bin/bash
+#!/bin/bash
 
  
-
-\# SPDX-License-Identifier: Apache-2.0
+# SPDX-License-Identifier: Apache-2.0
 
  
 
@@ -83,7 +82,7 @@ DOCKER_IMAGE=nvcr.io/nvidia/clara-train-sdk:v3.1.01
 
 DOCKER_Run_Name=claradevday-dataShare-hvd-unlim   
 
- \#这里名字如果新启动一个docker就需要改名               
+ #这里名字如果新启动一个docker就需要改名               
 
 jnotebookPort=$1
 
@@ -95,17 +94,17 @@ GPU_IDs=$2                                     AIAA_PORT=$3
 
 fi                                         if [[ -z $GPU_IDs ]]; then #if no gpu is passed
 
-  \# for all gpus use line below
+  # for all gpus use line below
 
   GPU_IDs=all
 
-  \# for 2 gpus use line below
+  # for 2 gpus use line below
 
-  \#GPU_IDs=2
+  #GPU_IDs=2
 
-  \# for specific gpus as gpu#0 and gpu#2 use line below
+  # for specific gpus as gpu#0 and gpu#2 use line below
 
-\#  GPU_IDs='"device=1,2,3"'
+#  GPU_IDs='"device=1,2,3"'
 
 fi
 
